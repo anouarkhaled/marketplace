@@ -14,3 +14,28 @@ class ListingListCreateView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(seller=self.request.user)    # vendeur = user connecté
+
+from rest_framework.parsers import MultiPartParser, FormParser
+from .models import Listing, ListingImage
+from .serializers import ListingImageSerializer
+
+
+class ListingImageUploadView(generics.CreateAPIView):
+    serializer_class = ListingImageSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]   # pour recevoir des fichiers
+
+    def perform_create(self, serializer):
+        listing = Listing.objects.get(pk=self.kwargs["listing_id"])
+        # Sécurité : seul le propriétaire de l'annonce peut ajouter une photo
+        if listing.seller != self.request.user:
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied("Vous n'êtes pas le propriétaire de cette annonce.")
+        serializer.save(listing=listing)
+from .permissions import IsOwnerOrReadOnly
+
+
+class ListingDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Listing.objects.all()
+    serializer_class = ListingSerializer
+    permission_classes = [IsOwnerOrReadOnly]
