@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'accounts',
     'corsheaders',
+    "listings",     # ← ajouté
+    "favorites",    # ← ajouté
 ]
 
 MIDDLEWARE = [
