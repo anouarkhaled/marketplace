@@ -5,7 +5,7 @@ import CreateListing from "./pages/CreateListing";
 import MyListings from "./pages/MyListings";
 import Listings from "./pages/Listings";
 import { useAuth } from "./context/AuthContext";
-
+import ListingDetail from "./pages/ListingDetail";
 function NavBar() {
   const { user, logout } = useAuth();
   return (
@@ -35,11 +35,11 @@ function App() {
       <NavBar />
       <Routes>
         <Route path="/" element={<Listings />} />
-        <Route path="/annonce/:id" element={<div style={{ padding: "2rem" }}>Détail (à venir)</div>} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
         <Route path="/creer-annonce" element={<CreateListing />} />
         <Route path="/mes-annonces" element={<MyListings />} />
+        <Route path="/annonce/:id" element={<ListingDetail />} />
       </Routes>
     </>
   );

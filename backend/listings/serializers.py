@@ -13,15 +13,16 @@ class ListingImageSerializer(serializers.ModelSerializer):
         model = ListingImage
         fields = ["id", "image", "uploaded_at"]
 
-
 class ListingSerializer(serializers.ModelSerializer):
     images = ListingImageSerializer(many=True, read_only=True)
     seller = serializers.StringRelatedField(read_only=True)
+    category_name = serializers.CharField(source="category.name", read_only=True)
 
     class Meta:
         model = Listing
         fields = [
             "id", "title", "description", "price", "location",
-            "category", "seller", "images", "is_active", "created_at",
+            "category", "category_name", "seller", "images",
+            "is_active", "created_at",
         ]
         read_only_fields = ["seller", "created_at"]
