@@ -1,42 +1,47 @@
 import { Routes, Route, Link } from "react-router-dom";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
-import { useAuth } from "./context/AuthContext";
 import CreateListing from "./pages/CreateListing";
 import MyListings from "./pages/MyListings";
-function Home() {
+import Listings from "./pages/Listings";
+import { useAuth } from "./context/AuthContext";
+
+function NavBar() {
   const { user, logout } = useAuth();
   return (
-    <div style={{ padding: "2rem" }}>
-      <h1>Marketplace</h1>
-          {user ? (
-        <>
-          <p>✅ Tu es connecté</p>
-          <Link to="/creer-annonce">➕ Publier une annonce</Link>
-          <br /><br />
-           <Link to="/mes-annonces">📋 Mes annonces</Link>
-          <br /><br />
-          <button onClick={logout}>Se déconnecter</button>
-        </>
-      ) : (
-        <p>
-          <Link to="/register">S'inscrire</Link> ·{" "}
-          <Link to="/login">Se connecter</Link>
-        </p>
-      )}
-    </div>
+    <nav style={{ display: "flex", gap: 16, padding: "1rem 2rem", borderBottom: "1px solid #eee", alignItems: "center" }}>
+      <Link to="/" style={{ fontWeight: "bold" }}>🏠 Marketplace</Link>
+      <div style={{ marginLeft: "auto", display: "flex", gap: 12 }}>
+        {user ? (
+          <>
+            <Link to="/creer-annonce">➕ Publier</Link>
+            <Link to="/mes-annonces">📋 Mes annonces</Link>
+            <button onClick={logout}>Déconnexion</button>
+          </>
+        ) : (
+          <>
+            <Link to="/login">Connexion</Link>
+            <Link to="/register">Inscription</Link>
+          </>
+        )}
+      </div>
+    </nav>
   );
 }
 
 function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/creer-annonce" element={<CreateListing />} />
-       <Route path="/mes-annonces" element={<MyListings />} />
-    </Routes>
+    <>
+      <NavBar />
+      <Routes>
+        <Route path="/" element={<Listings />} />
+        <Route path="/annonce/:id" element={<div style={{ padding: "2rem" }}>Détail (à venir)</div>} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/creer-annonce" element={<CreateListing />} />
+        <Route path="/mes-annonces" element={<MyListings />} />
+      </Routes>
+    </>
   );
 }
 

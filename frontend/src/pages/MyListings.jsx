@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import api from "../services/api";
-
+import { mediaUrl } from "../services/media";
 function MyListings() {
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -32,7 +32,7 @@ function MyListings() {
         listings.map((l) => (
           <div key={l.id} style={cardStyle}>
             {l.images[0] && (
-              <img src={`http://127.0.0.1:8000${l.images[0].image}`} alt="" style={{ width: 70, height: 70, objectFit: "cover", borderRadius: 4 }} />
+              <img src={mediaUrl(l.images[0].image)} alt="" style={{ width: 70, height: 70, objectFit: "cover", borderRadius: 4 }} />
             )}
             <div style={{ flex: 1 }}>
               <strong>{l.title}</strong>
