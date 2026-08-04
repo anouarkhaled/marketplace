@@ -3,6 +3,7 @@ import Register from "./pages/Register";
 import Login from "./pages/Login";
 import { useAuth } from "./context/AuthContext";
 import CreateListing from "./pages/CreateListing";
+import MyListings from "./pages/MyListings";
 function Home() {
   const { user, logout } = useAuth();
   return (
@@ -12,6 +13,8 @@ function Home() {
         <>
           <p>✅ Tu es connecté</p>
           <Link to="/creer-annonce">➕ Publier une annonce</Link>
+          <br /><br />
+           <Link to="/mes-annonces">📋 Mes annonces</Link>
           <br /><br />
           <button onClick={logout}>Se déconnecter</button>
         </>
@@ -32,6 +35,7 @@ function App() {
       <Route path="/register" element={<Register />} />
       <Route path="/login" element={<Login />} />
       <Route path="/creer-annonce" element={<CreateListing />} />
+       <Route path="/mes-annonces" element={<MyListings />} />
     </Routes>
   );
 }
