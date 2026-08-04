@@ -13,9 +13,19 @@ class ListingImageSerializer(serializers.ModelSerializer):
         model = ListingImage
         fields = ["id", "image", "uploaded_at"]
 
+
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+
+class SellerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "username", "email", "phone"]
 class ListingSerializer(serializers.ModelSerializer):
     images = ListingImageSerializer(many=True, read_only=True)
-    seller = serializers.StringRelatedField(read_only=True)
+    seller = SellerSerializer(read_only=True)
     category_name = serializers.CharField(source="category.name", read_only=True)
 
     class Meta:
@@ -26,3 +36,12 @@ class ListingSerializer(serializers.ModelSerializer):
             "is_active", "created_at",
         ]
         read_only_fields = ["seller", "created_at"]
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        # Masquer email + téléphone si l'utilisateur n'est pas connecté
+        request = self.context.get("request")
+        if not (request and request.user.is_authenticated):
+            data["seller"].pop("email", None)
+            data["seller"].pop("phone", None)
+        return data

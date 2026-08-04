@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import api from "../services/api";
+import { useAuth } from "../context/AuthContext";
 
 function ListingDetail() {
+  const { user } = useAuth();
   const { id } = useParams();
   const [listing, setListing] = useState(null);
   const [mainImage, setMainImage] = useState(null);
@@ -56,15 +58,33 @@ function ListingDetail() {
       <div style={infoBox}>
         <p>📍 <strong>Localisation :</strong> {listing.location}</p>
         <p>🏷️ <strong>Catégorie :</strong> {listing.category_name}</p>
-        <p>👤 <strong>Vendeur :</strong> {listing.seller}</p>
+        <p>👤 <strong>Vendeur :</strong> {listing.seller.username}</p>
       </div>
 
       <h3>Description</h3>
       <p style={{ lineHeight: 1.6, color: "#333" }}>{listing.description}</p>
+   <div style={contactBox}>
+        <h3>Contacter le vendeur</h3>
+        {user ? (
+          <>
+            {listing.seller.email && (
+              <p>✉️ <a href={`mailto:${listing.seller.email}`}>{listing.seller.email}</a></p>
+            )}
+            {listing.seller.phone && <p>📞 {listing.seller.phone}</p>}
+            {!listing.seller.email && !listing.seller.phone && (
+              <p style={{ color: "#777" }}>Ce vendeur n'a pas renseigné de coordonnées.</p>
+            )}
+          </>
+        ) : (
+          <p>
+            🔒 <Link to="/login">Connecte-toi</Link> pour voir les coordonnées du vendeur.
+          </p>
+        )}
+      </div>
     </div>
   );
 }
 
 const infoBox = { background: "#f7f7f7", borderRadius: 8, padding: "1rem", margin: "1.5rem 0" };
-
+const contactBox = { background: "#eef7f0", border: "1px solid #cde8d5", borderRadius: 8, padding: "1rem", margin: "1.5rem 0" };
 export default ListingDetail;
