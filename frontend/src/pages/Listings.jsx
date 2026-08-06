@@ -3,6 +3,8 @@ import api from "../services/api";
 import ListingCard from "../components/ListingCard";
 
 function Listings() {
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -13,31 +15,34 @@ function Listings() {
 
   // Charger les catégories pour le menu déroulant
   useEffect(() => {
-    api.get("/categories/").then((res) => setCategories(res.data));
+    api.get("/categories/").then((res) => setCategories(res.data.results));
   }, []);
 
   // Recharger les annonces quand recherche ou filtres changent
-  useEffect(() => {
+useEffect(() => {
     setLoading(true);
     const timer = setTimeout(() => {
-      // On ne garde que les paramètres non vides
-      const params = {};
+      const params = { page };
       if (search) params.search = search;
       Object.entries(filters).forEach(([key, val]) => {
         if (val) params[key] = val;
       });
 
       api.get("/listings/", { params })
-        .then((res) => setListings(res.data))
+        .then((res) => {
+          setListings(res.data.results);                       // ← .results
+          setTotalPages(Math.ceil(res.data.count / 9));        // 9 = PAGE_SIZE
+        })
         .finally(() => setLoading(false));
     }, 400);
 
     return () => clearTimeout(timer);
-  }, [search, filters]);
+  }, [search, filters, page]);   // ← ajoute page
 
-  const handleFilter = (e) =>
+const handleFilter = (e) => {
+    setPage(1);
     setFilters({ ...filters, [e.target.name]: e.target.value });
-
+  };
   const resetFilters = () => {
     setSearch("");
     setFilters({ category: "", location: "", min_price: "", max_price: "" });
@@ -51,7 +56,7 @@ function Listings() {
         type="text"
         placeholder="🔍 Rechercher un bien..."
         value={search}
-        onChange={(e) => setSearch(e.target.value)}
+        onChange={(e) => { setPage(1); setSearch(e.target.value); }}
         style={searchStyle}
       />
 
@@ -82,10 +87,22 @@ function Listings() {
           ))}
         </div>
       )}
+      {totalPages > 1 && (
+        <div style={paginationBar}>
+          <button onClick={() => setPage(page - 1)} disabled={page === 1} style={pageBtn}>
+            ← Précédent
+          </button>
+          <span>Page {page} / {totalPages}</span>
+          <button onClick={() => setPage(page + 1)} disabled={page === totalPages} style={pageBtn}>
+            Suivant →
+          </button>
+        </div>
+      )}
     </div>
   );
 }
-
+const paginationBar = { display: "flex", gap: 16, justifyContent: "center", alignItems: "center", marginTop: "2rem" };
+const pageBtn = { padding: "0.5rem 1rem", cursor: "pointer", borderRadius: 6, border: "1px solid #ccc", background: "#fff" };
 const searchStyle = { width: "100%", padding: "0.75rem", fontSize: "1rem", borderRadius: 8, border: "1px solid #ccc", margin: "1rem 0 1rem" };
 const filterBar = { display: "flex", gap: 8, flexWrap: "wrap", marginBottom: "1.5rem", alignItems: "center" };
 const filterInput = { padding: "0.5rem", borderRadius: 6, border: "1px solid #ccc" };

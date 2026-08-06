@@ -14,7 +14,7 @@ function CreateListing() {
 
   // Charger les catégories au montage
   useEffect(() => {
-    api.get("/categories/").then((res) => setCategories(res.data));
+    api.get("/categories/").then((res) => setCategories(res.data.results));
   }, []);
 
   const handleChange = (e) =>
@@ -33,7 +33,7 @@ function CreateListing() {
     try {
       // 1. Créer l'annonce
       const res = await api.post("/listings/", form);
-      const listingId = res.data.id;
+      const listingId = res.data.results.id;
 
       // 2. Uploader chaque image
       for (const image of images) {

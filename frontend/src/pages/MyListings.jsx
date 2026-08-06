@@ -8,7 +8,7 @@ function MyListings() {
 
   const fetchListings = () => {
     api.get("/my-listings/")
-      .then((res) => setListings(res.data))
+      .then((res) => setListings(res.data.results)) 
       .finally(() => setLoading(false));
   };
 
