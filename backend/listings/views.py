@@ -8,11 +8,15 @@ from .serializers import ListingImageSerializer
 
 
 
+from django_filters.rest_framework import DjangoFilterBackend
+from .filters import ListingFilter
+
 class ListingListCreateView(generics.ListCreateAPIView):
     queryset = Listing.objects.filter(is_active=True).order_by("-created_at")
     serializer_class = ListingSerializer
-    filter_backends = [filters.SearchFilter]          # ← ajouté
-    search_fields = ["title", "description", "location"]   # ← champs cherchés
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]   # ← les deux
+    filterset_class = ListingFilter                                 # ← ajouté
+    search_fields = ["title", "description", "location"]
 
     def get_permissions(self):
         if self.request.method == "POST":

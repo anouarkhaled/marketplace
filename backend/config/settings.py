@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'listings',     # ← ajouté
     'favorites',    # ← ajouté
+    "django_filters",   # ← attention : underscore, pas tiret
 ]
 
 MIDDLEWARE = [
