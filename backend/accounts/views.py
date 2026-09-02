@@ -20,3 +20,23 @@ class ProfileView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user   # toujours l'utilisateur connecté
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from django.contrib.auth import get_user_model
+from listings.models import Listing
+from favorites.models import Favorite
+
+User = get_user_model()
+
+
+class StatsView(APIView):
+    permission_classes = [permissions.IsAdminUser]   # ← réservé aux admins (is_staff)
+
+    def get(self, request):
+        return Response({
+            "users": User.objects.count(),
+            "listings_total": Listing.objects.count(),
+            "listings_active": Listing.objects.filter(is_active=True).count(),
+            "listings_hidden": Listing.objects.filter(is_active=False).count(),
+            "favorites": Favorite.objects.count(),
+        })

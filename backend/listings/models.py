@@ -32,10 +32,12 @@ class Listing(models.Model):
     location = models.CharField(max_length=200)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    # Traçabilité de modération
+    moderated_at = models.DateTimeField(null=True, blank=True)
+    moderation_reason = models.CharField(max_length=255, blank=True)
 
     def __str__(self):
         return self.title
-
 
 class ListingImage(models.Model):
     listing = models.ForeignKey(
