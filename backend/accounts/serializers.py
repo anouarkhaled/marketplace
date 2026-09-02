@@ -29,3 +29,8 @@ class RegisterSerializer(serializers.ModelSerializer):
         # create_user hash automatiquement le mot de passe
         user = User.objects.create_user(**validated_data)
         return user
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "username", "email", "phone", "avatar"]
+        read_only_fields = ["id", "username"]   # on ne change pas le username ici

@@ -7,7 +7,7 @@ import Listings from "./pages/Listings";
 import { useAuth } from "./context/AuthContext";
 import ListingDetail from "./pages/ListingDetail";
 import Favorites from "./pages/Favorites";
-
+import Profile from "./pages/Profile";
 // dans <Routes> :
    
 function NavBar() {
@@ -21,6 +21,7 @@ function NavBar() {
             <Link to="/creer-annonce">➕ Publier</Link>
             <Link to="/mes-annonces">📋 Mes annonces</Link>
             <Link to="/favoris">⭐ Favoris</Link>
+            <Link to="/profil">👤 Profil</Link>
             <button onClick={logout}>Déconnexion</button>
           </>
         ) : (
@@ -46,6 +47,7 @@ function App() {
         <Route path="/mes-annonces" element={<MyListings />} />
         <Route path="/annonce/:id" element={<ListingDetail />} />
         <Route path="/favoris" element={<Favorites />} />
+        <Route path="/profil" element={<Profile />} />
       </Routes>
     </>
   );
