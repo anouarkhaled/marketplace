@@ -6,6 +6,10 @@ import MyListings from "./pages/MyListings";
 import Listings from "./pages/Listings";
 import { useAuth } from "./context/AuthContext";
 import ListingDetail from "./pages/ListingDetail";
+import Favorites from "./pages/Favorites";
+
+// dans <Routes> :
+   
 function NavBar() {
   const { user, logout } = useAuth();
   return (
@@ -16,6 +20,7 @@ function NavBar() {
           <>
             <Link to="/creer-annonce">➕ Publier</Link>
             <Link to="/mes-annonces">📋 Mes annonces</Link>
+            <Link to="/favoris">⭐ Favoris</Link>
             <button onClick={logout}>Déconnexion</button>
           </>
         ) : (
@@ -40,6 +45,7 @@ function App() {
         <Route path="/creer-annonce" element={<CreateListing />} />
         <Route path="/mes-annonces" element={<MyListings />} />
         <Route path="/annonce/:id" element={<ListingDetail />} />
+        <Route path="/favoris" element={<Favorites />} />
       </Routes>
     </>
   );

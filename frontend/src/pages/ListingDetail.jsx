@@ -2,6 +2,9 @@ import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
+import FavoriteButton from "../components/FavoriteButton";
+
+// dans le JSX, près du titre :
 
 function ListingDetail() {
   const { user } = useAuth();
@@ -37,6 +40,7 @@ function ListingDetail() {
           <img src={mainImage} alt={listing.title} style={{ width: "100%", maxHeight: 400, objectFit: "cover", borderRadius: 8 }} />
           {listing.images.length > 1 && (
             <div style={{ display: "flex", gap: 8, marginTop: 8, flexWrap: "wrap" }}>
+              
               {listing.images.map((img) => (
                 <img
                   key={img.id}
@@ -53,9 +57,11 @@ function ListingDetail() {
           )}
         </div>
       )}
+         <FavoriteButton listingId={listing.id} initialFavorited={listing.is_favorited} />
 
       {/* Infos */}
       <div style={infoBox}>
+     
         <p>📍 <strong>Localisation :</strong> {listing.location}</p>
         <p>🏷️ <strong>Catégorie :</strong> {listing.category_name}</p>
         <p>👤 <strong>Vendeur :</strong> {listing.seller.username}</p>
