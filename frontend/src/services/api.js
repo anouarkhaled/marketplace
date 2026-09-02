@@ -1,8 +1,8 @@
 import axios from "axios";
-
 const api = axios.create({
-  baseURL: "http://127.0.0.1:8000/api",
+  baseURL: import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api",
 });
+
 
 // --- Intercepteur de REQUÊTE : ajoute le token (comme avant) ---
 api.interceptors.request.use((config) => {
@@ -31,7 +31,7 @@ api.interceptors.response.use(
 
       try {
         // Demander un nouvel access token
-        const res = await axios.post("http://127.0.0.1:8000/api/token/refresh/", { refresh });
+        const res = await axios.post(`${api.defaults.baseURL}/token/refresh/`, { refresh });
         const newAccess = res.data.access;
         localStorage.setItem("access", newAccess);
 
