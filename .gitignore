@@ -15,3 +15,10 @@ dist/
 .DS_Store
 .vscode/
 tests/
+
+# Local test and coverage artifacts
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+coverage/
