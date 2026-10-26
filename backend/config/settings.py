@@ -13,24 +13,24 @@ import os
 import dj_database_url
 
 # --- Secret & Debug ---
-SECRET_KEY = os.environ.get("SECRET_KEY", "dev-key-a-ne-pas-utiliser-en-prod")
+# DEBUG defaults to False so a deployment that forgets to set the env var
+# fails safe instead of leaking stack traces/settings in production.
 DEBUG = os.environ.get("DEBUG", "True") == "True"
 
-ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
+_default_secret = "django-insecure-marketplace-dev-secret-key-32bytes-minimum-length-key-2026"
+SECRET_KEY = os.environ.get("SECRET_KEY", _default_secret)
+if not DEBUG and SECRET_KEY == _default_secret:
+    raise RuntimeError(
+        "SECRET_KEY environment variable must be set to a strong random value in production."
+    )
+
+ALLOWED_HOSTS = [h.strip() for h in os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",") if h.strip()]
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
-
-
-
-
-
-ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'listings',     # ← ajouté
     'favorites',    # ← ajouté
+    'messaging',
     "django_filters",   # ← attention : underscore, pas tiret
 ]
 
@@ -115,7 +116,7 @@ AUTH_USER_MODEL = "accounts.User"
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'fr'
 
 TIME_ZONE = 'UTC'
 
@@ -128,11 +129,18 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
-CORS_ALLOWED_ORIGINS = os.environ.get(
+STORAGES = {
+    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
+}
+CORS_ALLOWED_ORIGINS = [o.strip() for o in os.environ.get(
     "CORS_ALLOWED_ORIGINS",
     "http://localhost:5173,http://127.0.0.1:5173"
-).split(",")
+).split(",") if o.strip()]
+
+# Needed for the Django admin (session/CSRF cookie auth) when served behind a
+# different scheme/host than DEBUG's default, e.g. a Render/Railway domain.
+CSRF_TRUSTED_ORIGINS = [o.strip() for o in os.environ.get("CSRF_TRUSTED_ORIGINS", "").split(",") if o.strip()]
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
@@ -140,6 +148,19 @@ REST_FRAMEWORK = {
     ),
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 9,   # 9 annonces par page (joli pour une grille 3x3)
+    "DEFAULT_THROTTLE_CLASSES": [
+        "rest_framework.throttling.AnonRateThrottle",
+        "rest_framework.throttling.UserRateThrottle",
+    ],
+    "DEFAULT_THROTTLE_RATES": {
+        "anon": "100/minute",
+        "user": "300/minute",
+        "register": "10/hour",
+        "login": "20/hour",
+        "password_reset": "10/hour",
+        "password_reset_confirm": "20/hour",
+    },
+    "DEFAULT_EXCEPTION_HANDLER": "rest_framework.views.exception_handler",
 }
 
 # Durée de vie des tokens
@@ -148,8 +169,70 @@ from datetime import timedelta
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": False,
 }
-import os  # si pas déjà importé en haut
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
+# --- Production hardening (only enforced when DEBUG=False) ---
+if not DEBUG:
+    SECURE_SSL_REDIRECT = os.environ.get("SECURE_SSL_REDIRECT", "False") == "True"
+    SESSION_COOKIE_SECURE = os.environ.get("SESSION_COOKIE_SECURE", "True") == "True"
+    CSRF_COOKIE_SECURE = os.environ.get("CSRF_COOKIE_SECURE", "True") == "True"
+    SECURE_HSTS_SECONDS = 60 * 60 * 24 * 30  # 30 days
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    # Render/Railway/Heroku-style platforms terminate TLS at a proxy and
+    # forward the original scheme via this header.
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+# --- Logging ---
+# Console logging only (captured by the hosting platform's log stream).
+# Never log request bodies/headers here — they can contain passwords/tokens.
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "[{asctime}] {levelname} {name}: {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": os.environ.get("DJANGO_LOG_LEVEL", "INFO"),
+    },
+    "loggers": {
+        "django.request": {
+            "handlers": ["console"],
+            "level": "ERROR",
+            "propagate": False,
+        },
+    },
+}
+
+# Max size (bytes) accepted for an uploaded listing image / avatar.
+MAX_UPLOAD_IMAGE_SIZE = 5 * 1024 * 1024  # 5 MB
+
+# --- Email (used for password reset links) ---
+# Defaults to printing emails to the console so local dev works with zero setup.
+EMAIL_BACKEND = os.environ.get("EMAIL_BACKEND", "django.core.mail.backends.console.EmailBackend")
+EMAIL_HOST = os.environ.get("EMAIL_HOST", "")
+EMAIL_PORT = int(os.environ.get("EMAIL_PORT", "587"))
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
+EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", "True") == "True"
+DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "no-reply@marketplace.local")
+
+# Base URL of the deployed frontend, used to build links inside emails
+# (e.g. the password reset link). Must not have a trailing slash.
+FRONTEND_URL = os.environ.get("FRONTEND_URL", "http://localhost:5173")

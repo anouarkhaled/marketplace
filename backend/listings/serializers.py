@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Listing, Category, ListingImage
+from config.validators import validate_image_size
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -9,6 +10,9 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class ListingImageSerializer(serializers.ModelSerializer):
+    def validate_image(self, value):
+        return validate_image_size(value)
+
     class Meta:
         model = ListingImage
         fields = ["id", "image", "uploaded_at"]
@@ -26,17 +30,32 @@ class SellerSerializer(serializers.ModelSerializer):
 
    
 class ListingSerializer(serializers.ModelSerializer):
+    is_moderated = serializers.SerializerMethodField()
+
+    def get_is_moderated(self, obj):
+        return bool(obj.moderated_at and not obj.is_active)
+
     images = ListingImageSerializer(many=True, read_only=True)
     seller = SellerSerializer(read_only=True)
     category_name = serializers.CharField(source="category.name", read_only=True)
     is_favorited = serializers.SerializerMethodField()   # ← ajouté
+
+    def validate(self, attrs):
+        if (
+            self.instance and self.instance.moderated_at
+            and attrs.get("is_active") is True
+        ):
+            raise serializers.ValidationError({
+                "is_active": "Seul un administrateur peut réactiver une annonce modérée."
+            })
+        return attrs
 
     class Meta:
         model = Listing
         fields = [
             "id", "title", "description", "price", "location",
             "category", "category_name", "seller", "images",
-            "is_favorited", "is_active", "created_at",   # ← ajoute is_favorited
+            "is_favorited", "is_active", "is_moderated", "created_at",
         ]
         read_only_fields = ["seller", "created_at"]
 

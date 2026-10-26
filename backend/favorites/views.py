@@ -3,6 +3,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from .models import Favorite
 from .serializers import FavoriteSerializer
+from listings.models import Listing
+from rest_framework.generics import get_object_or_404
 
 
 class FavoriteListView(generics.ListAPIView):
@@ -10,7 +12,7 @@ class FavoriteListView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return Favorite.objects.filter(user=self.request.user).order_by("-created_at")
+        return Favorite.objects.filter(user=self.request.user, listing__is_active=True).order_by("-created_at")
 
 
 class FavoriteToggleView(APIView):
@@ -18,9 +20,10 @@ class FavoriteToggleView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, listing_id):
+        listing = get_object_or_404(Listing, pk=listing_id, is_active=True)
         favorite, created = Favorite.objects.get_or_create(
             user=request.user,
-            listing_id=listing_id,
+            listing=listing,
         )
         if not created:
             # Existait déjà → on le retire

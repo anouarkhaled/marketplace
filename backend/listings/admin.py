@@ -10,6 +10,15 @@ class ListingImageInline(admin.TabularInline):
 
 @admin.register(Listing)
 class ListingAdmin(admin.ModelAdmin):
+    def save_model(self, request, obj, form, change):
+        if change and obj.is_active:
+            obj.moderated_at = None
+            obj.moderation_reason = ""
+        elif change and Listing.objects.filter(pk=obj.pk, is_active=True).exists():
+            obj.moderated_at = timezone.now()
+            obj.moderation_reason = "Annonce masquée par un administrateur"
+        super().save_model(request, obj, form, change)
+
     list_display = ["title", "seller", "price", "location", "category", "is_active", "moderated_at", "created_at"]
     list_filter = ["is_active", "category", "created_at"]
     search_fields = ["title", "description", "location", "seller__username"]
