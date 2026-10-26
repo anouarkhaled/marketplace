@@ -1,34 +1,23 @@
+import CarnetButton from "./CarnetButton";
 import { Link } from "react-router-dom";
+import { mediaUrl } from "../services/media";
 import FavoriteButton from "./FavoriteButton";
+import Icon from "./Icons";
 
-function ListingCard({ listing }) {
-  const image = listing.images[0] ? listing.images[0].image : PLACEHOLDER;
-
-  return (
-    <div style={cardStyle}>
-      <div style={{ position: "relative" }}>
-        <Link to={`/annonce/${listing.id}`}>
-          <img src={image} alt={listing.title} style={imgStyle} />
-        </Link>
-        <div style={{ position: "absolute", top: 8, right: 8 }}>
-          <FavoriteButton listingId={listing.id} initialFavorited={listing.is_favorited} />
-        </div>
-      </div>
-      <Link to={`/annonce/${listing.id}`} style={{ textDecoration: "none", color: "inherit" }}>
-        <div style={{ padding: "0.75rem" }}>
-          <strong style={{ fontSize: "1.05rem" }}>{listing.title}</strong>
-          <p style={{ margin: "0.4rem 0", color: "#2a7", fontWeight: "bold" }}>
-            {Number(listing.price).toLocaleString()} DT
-          </p>
-          <p style={{ margin: 0, color: "#777", fontSize: "0.9rem" }}>📍 {listing.location}</p>
-        </div>
+export default function ListingCard({ listing, onFavoriteChange }) {
+  const image = listing.images?.[0] ? mediaUrl(listing.images[0].image) : null;
+  return <article className="listing-card">
+    <div className="listing-card-media">
+      <Link to={`/annonce/${listing.id}`} aria-label={`Voir l’annonce : ${listing.title}`} className="listing-image-link">
+        {image ? <img src={image} alt={listing.title} loading="lazy" /> : <div className="listing-image-placeholder"><Icon name="package" size={32} /></div>}
       </Link>
+      <div className="listing-card-fav"><FavoriteButton listingId={listing.id} initialFavorited={listing.is_favorited} onChange={onFavoriteChange} /></div>
     </div>
-  );
+    <div className="listing-card-body">
+      <div><span className="badge badge-neutral"><Icon name="tag" size={12} /> {listing.category_name || "Sans catégorie"}</span></div>
+      <Link to={`/annonce/${listing.id}`} className="listing-card-title">{listing.title}</Link>
+      <div className="listing-card-meta"><Icon name="map-pin" size={14} /><span>{listing.location}</span></div>
+      <div className="listing-card-bottom"><CarnetButton listing={listing} /><div className="listing-card-price">{Number(listing.price).toLocaleString("fr-TN")} DT</div></div>
+    </div>
+  </article>;
 }
-
-const PLACEHOLDER = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='180'%3E%3Crect width='100%25' height='100%25' fill='%23eee'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23999' font-family='sans-serif'%3EPas de photo%3C/text%3E%3C/svg%3E";
-const cardStyle = { border: "1px solid #e0e0e0", borderRadius: 8, overflow: "hidden", background: "#fff" };
-const imgStyle = { width: "100%", height: 180, objectFit: "cover", display: "block" };
-
-export default ListingCard;

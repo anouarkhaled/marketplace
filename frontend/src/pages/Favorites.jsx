@@ -1,39 +1,21 @@
-import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import api from "../services/api";
 import ListingCard from "../components/ListingCard";
+import Spinner from "../components/Spinner";
+import EmptyState from "../components/EmptyState";
+import RequestError from "../components/RequestError";
+import Pagination from "../components/Pagination";
+import useApiPage from "../hooks/useApiPage";
 
-function Favorites() {
-  const [favorites, setFavorites] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    api.get("/favorites/")
-      .then((res) => setFavorites(res.data.results))   // pagination → .results
-      .finally(() => setLoading(false));
-  }, []);
-
-  if (loading) return <p style={{ padding: "2rem" }}>Chargement...</p>;
-
-  return (
-    <div style={{ maxWidth: 1000, margin: "0 auto", padding: "2rem", fontFamily: "sans-serif" }}>
-      <h1>Mes favoris</h1>
-
-      {favorites.length === 0 ? (
-        <p>
-          Tu n'as pas encore de favori. <Link to="/">Parcourir les annonces</Link>
-        </p>
-      ) : (
-        <div style={gridStyle}>
-          {favorites.map((fav) => (
-            <ListingCard key={fav.id} listing={fav.listing} />
-          ))}
-        </div>
-      )}
-    </div>
-  );
+export default function Favorites() {
+  const { items, loading, error, retry, page, totalPages, setPage } = useApiPage("/favorites/");
+  return <div className="container page">
+    <div className="page-header"><h1>Mes favoris</h1><p>Retrouvez les annonces disponibles que vous avez enregistrées.</p></div>
+    {loading ? <Spinner size="lg" /> : error ? <RequestError message={error} onRetry={retry} /> : !items.length ? (
+      <EmptyState icon="heart" title="Aucun favori pour l’instant" description="Cliquez sur le cœur d’une annonce pour la retrouver ici."
+        action={<Link to="/annonces" className="btn btn-primary">Parcourir les annonces</Link>} />
+    ) : <>
+      <div className="listings-grid">{items.map((favorite) => <ListingCard key={favorite.id} listing={favorite.listing} onFavoriteChange={retry} />)}</div>
+      <Pagination page={page} totalPages={totalPages} onChange={setPage} />
+    </>}
+  </div>;
 }
-
-const gridStyle = { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: "1.5rem", marginTop: "1.5rem" };
-
-export default Favorites;

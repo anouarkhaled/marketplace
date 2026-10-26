@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "lint": "oxlint",
+    "lint": "oxlint --deny-warnings",
+    "test": "node --test",
+    "test:coverage": "node --test --experimental-test-coverage --test-coverage-include=src/services/*.js --test-coverage-exclude=src/services/*.test.js --test-coverage-lines=95 --test-coverage-branches=80 --test-coverage-functions=90",
     "preview": "vite preview"
   },
   "dependencies": {

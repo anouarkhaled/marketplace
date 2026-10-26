@@ -1,52 +1,63 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../services/api";
 import { mediaUrl } from "../services/media";
-function MyListings() {
-  const [listings, setListings] = useState([]);
-  const [loading, setLoading] = useState(true);
+import { useToast } from "../hooks/useToast";
+import { extractErrorMessage } from "../services/errors";
+import useApiPage from "../hooks/useApiPage";
+import Spinner from "../components/Spinner";
+import EmptyState from "../components/EmptyState";
+import RequestError from "../components/RequestError";
+import Pagination from "../components/Pagination";
+import Icon from "../components/Icons";
 
-  const fetchListings = () => {
-    api.get("/my-listings/")
-      .then((res) => setListings(res.data.results)) 
-      .finally(() => setLoading(false));
+export default function MyListings() {
+  const { items, loading, error, retry, page, totalPages, setPage } = useApiPage("/my-listings/");
+  const [busyId, setBusyId] = useState(null);
+  const toast = useToast();
+  const handleDelete = async (listing) => {
+    if (busyId || !window.confirm(`Supprimer définitivement l’annonce « ${listing.title} » et ses conversations ?`)) return;
+    setBusyId(listing.id);
+    try { await api.delete(`/listings/${listing.id}/`); toast.success("Annonce supprimée."); retry(); }
+    catch (failure) { toast.error(extractErrorMessage(failure)); }
+    finally { setBusyId(null); }
   };
-
-  useEffect(() => { fetchListings(); }, []);
-
-  const handleDelete = async (id) => {
-    if (!window.confirm("Supprimer cette annonce ?")) return;
-    await api.delete(`/listings/${id}/`);
-    setListings(listings.filter((l) => l.id !== id));   // maj immédiate
+  const toggle = async (listing) => {
+    if (busyId) return;
+    setBusyId(listing.id);
+    try {
+      const response = await api.patch(`/listings/${listing.id}/`, { is_active: !listing.is_active });
+      toast.success(response.data.is_active ? "Annonce republiée." : "Annonce marquée comme vendue.");
+      retry();
+    } catch (failure) { toast.error(extractErrorMessage(failure)); }
+    finally { setBusyId(null); }
   };
-
-  if (loading) return <p style={{ padding: "2rem" }}>Chargement...</p>;
-
-  return (
-    <div style={{ maxWidth: 600, margin: "2rem auto", fontFamily: "sans-serif" }}>
-      <h2>Mes annonces</h2>
-
-      {listings.length === 0 ? (
-        <p>Tu n'as pas encore publié d'annonce. <Link to="/creer-annonce">Créer ma première annonce</Link></p>
-      ) : (
-        listings.map((l) => (
-          <div key={l.id} style={cardStyle}>
-            {l.images[0] && (
-              <img src={mediaUrl(l.images[0].image)} alt="" style={{ width: 70, height: 70, objectFit: "cover", borderRadius: 4 }} />
-            )}
-            <div style={{ flex: 1 }}>
-              <strong>{l.title}</strong>
-              <p style={{ margin: "4px 0", color: "#555" }}>{l.price} · {l.location}</p>
-            </div>
-            <button onClick={() => handleDelete(l.id)} style={deleteBtn}>Supprimer</button>
-          </div>
-        ))
-      )}
+  return <div className="container page">
+    <div className="page-header row wrap" style={{ justifyContent: "space-between", gap: "1rem" }}>
+      <div><h1>Mes annonces</h1><p>Modifiez vos offres et gérez leur disponibilité.</p></div>
+      <Link to="/creer-annonce" className="btn btn-primary"><Icon name="plus" size={18} /> Publier une annonce</Link>
     </div>
-  );
+    {loading ? <Spinner size="lg" /> : error ? <RequestError message={error} onRetry={retry} /> : !items.length ? (
+      <EmptyState icon="package" title="Aucune annonce publiée" description="Proposez votre premier produit ou service."
+        action={<Link to="/creer-annonce" className="btn btn-primary">Créer une annonce</Link>} />
+    ) : <>
+      <div className="stack gap-3">{items.map((listing) => (
+        <article className="card my-listing-row" key={listing.id}>
+          {listing.images?.[0] ? <img src={mediaUrl(listing.images[0].image)} alt="" /> : <Icon name="package" size={48} />}
+          <div className="info">
+            <Link className="listing-card-title" to={`/annonce/${listing.id}`}>{listing.title}</Link>
+            <p className="muted">{Number(listing.price).toLocaleString("fr-TN")} DT · {listing.location}</p>
+            <span className={`badge ${listing.is_active ? "badge-success" : "badge-neutral"}`}>{listing.is_active ? "Active" : listing.is_moderated ? "Masquée par la modération" : "Vendue / désactivée"}</span>
+            {listing.is_moderated && <p className="field-hint">Vous pouvez corriger votre annonce. Sa remise en ligne nécessite l’intervention d’un administrateur.</p>}
+          </div>
+          <div className="actions">
+            <Link to={`/annonce/${listing.id}/modifier`} className="btn btn-secondary btn-sm">Modifier</Link>
+            {!listing.is_moderated && <button className="btn btn-secondary btn-sm" disabled={busyId !== null} onClick={() => toggle(listing)}>{listing.is_active ? "Marquer vendue" : "Republier"}</button>}
+            <button className="btn btn-danger btn-sm" disabled={busyId !== null} onClick={() => handleDelete(listing)}>{busyId === listing.id ? "Traitement..." : "Supprimer"}</button>
+          </div>
+        </article>
+      ))}</div>
+      <Pagination page={page} totalPages={totalPages} onChange={setPage} />
+    </>}
+  </div>;
 }
-
-const cardStyle = { display: "flex", alignItems: "center", gap: 12, border: "1px solid #ddd", borderRadius: 8, padding: 12, marginBottom: 12 };
-const deleteBtn = { padding: "0.4rem 0.8rem", cursor: "pointer", color: "red" };
-
-export default MyListings;

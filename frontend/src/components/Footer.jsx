@@ -1,0 +1,4 @@
+﻿import { Link } from "react-router-dom";
+export default function Footer() {
+  return <footer className="footer market-footer"><div className="container"><div className="market-footer-top"><div><Link to="/" className="footer-wordmark">Marketplace<span>↗</span></Link><p>Les trouvailles d’ici.<br />Les histoires de demain.</p></div><div className="footer-col"><h2>Faire un tour</h2><ul><li><Link to="/annonces">Toutes les annonces</Link></li><li><Link to="/carnet">Mon carnet de trouvailles</Link></li><li><Link to="/creer-annonce">Publier une annonce</Link></li></ul></div><div className="footer-col"><h2>Se retrouver</h2><ul><li><Link to="/profil">Mon compte</Link></li><li><Link to="/favoris">Mes favoris</Link></li><li><Link to="/messages">Mes conversations</Link></li></ul></div></div><div className="footer-bottom"><span>© {new Date().getFullYear()} Marketplace</span><span>EN TUNISIE, TOUT SIMPLEMENT.</span></div></div></footer>;
+}

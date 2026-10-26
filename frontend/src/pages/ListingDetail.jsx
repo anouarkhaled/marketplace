@@ -1,96 +1,87 @@
-import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import CarnetButton from "../components/CarnetButton";
+import { useEffect, useState } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import api from "../services/api";
-import { useAuth } from "../context/AuthContext";
+import { mediaUrl } from "../services/media";
+import useApiResource from "../hooks/useApiResource";
+import { useAuth } from "../hooks/useAuth";
+import { useToast } from "../hooks/useToast";
+import { extractErrorMessage } from "../services/errors";
 import FavoriteButton from "../components/FavoriteButton";
+import EmptyState from "../components/EmptyState";
+import RequestError from "../components/RequestError";
+import Spinner from "../components/Spinner";
+import Icon from "../components/Icons";
 
-// dans le JSX, près du titre :
-
-function ListingDetail() {
+export default function ListingDetail() {
   const { user } = useAuth();
   const { id } = useParams();
-  const [listing, setListing] = useState(null);
-  const [mainImage, setMainImage] = useState(null);
-  const [error, setError] = useState(false);
+  const navigate = useNavigate();
+  const toast = useToast();
+  const { data: listing, error, loading, retry } = useApiResource(`/listings/${id}/`);
+  const [selectedImage, setSelectedImage] = useState(0);
+  const [message, setMessage] = useState("");
+  const [sending, setSending] = useState(false);
+  const [sendError, setSendError] = useState(null);
+  useEffect(() => { setSelectedImage(0); setMessage(""); setSendError(null); }, [id]);
 
-  useEffect(() => {
-    api.get(`/listings/${id}/`)
-      .then((res) => {
-        setListing(res.data);
-        if (res.data.images[0]) setMainImage(res.data.images[0].image);
-      })
-      .catch(() => setError(true));
-  }, [id]);
+  if (loading) return <Spinner size="lg" />;
+  if (error) return <div className="container page">{error.status === 404
+    ? <EmptyState icon="search" title="Annonce introuvable" description="Cette annonce n’est plus disponible."
+      action={<Link to="/annonces" className="btn btn-primary">Retour aux annonces</Link>} />
+    : <RequestError message={error.message} onRetry={retry} />}</div>;
 
-  if (error) return <p style={{ padding: "2rem" }}>Annonce introuvable. <Link to="/">Retour</Link></p>;
-  if (!listing) return <p style={{ padding: "2rem" }}>Chargement...</p>;
+  const isOwner = user?.id === listing.seller.id;
+  const image = listing.images[selectedImage];
+  const handleContact = async (event) => {
+    event.preventDefault();
+    if (!message.trim() || sending) return;
+    setSending(true);
+    setSendError(null);
+    try {
+      const response = await api.post("/conversations/", { listing: listing.id, body: message.trim() });
+      toast.success("Message envoyé.");
+      navigate(`/messages/${response.data.id}`);
+    } catch (failure) { setSendError(extractErrorMessage(failure)); }
+    finally { setSending(false); }
+  };
 
-  return (
-    <div style={{ maxWidth: 800, margin: "0 auto", padding: "2rem", fontFamily: "sans-serif" }}>
-      <Link to="/">← Retour aux annonces</Link>
-
-      <h1 style={{ marginTop: "1rem" }}>{listing.title}</h1>
-      <p style={{ fontSize: "1.5rem", color: "#2a7", fontWeight: "bold" }}>
-        {Number(listing.price).toLocaleString()} DT
-      </p>
-
-      {/* Galerie photos */}
-      {mainImage && (
-        <div style={{ marginBottom: "1rem" }}>
-          <img src={mainImage} alt={listing.title} style={{ width: "100%", maxHeight: 400, objectFit: "cover", borderRadius: 8 }} />
-          {listing.images.length > 1 && (
-            <div style={{ display: "flex", gap: 8, marginTop: 8, flexWrap: "wrap" }}>
-              
-              {listing.images.map((img) => (
-                <img
-                  key={img.id}
-                  src={img.image}
-                  alt=""
-                  onClick={() => setMainImage(img.image)}
-                  style={{
-                    width: 70, height: 70, objectFit: "cover", borderRadius: 4, cursor: "pointer",
-                    border: mainImage === img.image ? "2px solid #2a7" : "2px solid transparent",
-                  }}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-         <FavoriteButton listingId={listing.id} initialFavorited={listing.is_favorited} />
-
-      {/* Infos */}
-      <div style={infoBox}>
-     
-        <p>📍 <strong>Localisation :</strong> {listing.location}</p>
-        <p>🏷️ <strong>Catégorie :</strong> {listing.category_name}</p>
-        <p>👤 <strong>Vendeur :</strong> {listing.seller.username}</p>
+  return <div className="container page">
+    <Link to="/annonces" className="btn btn-ghost btn-sm" style={{ marginBottom: "1.5rem" }}><Icon name="arrow-left" size={16} /> Retour aux annonces</Link>
+    {!listing.is_active && <p className="notice" role="status">{listing.is_moderated ? "Cette annonce est masquée par la modération." : "Cette annonce est vendue ou désactivée."} Elle n’est pas visible dans le catalogue.</p>}
+    <div className="listing-detail-layout">
+      <div>
+        <div className="gallery-main">{image ? <img src={mediaUrl(image.image)} alt={`${listing.title} — photo ${selectedImage + 1}`} />
+          : <div className="listing-image-placeholder"><Icon name="package" size={48} /><span>Aucune photo</span></div>}</div>
+        {listing.images.length > 1 && <div className="gallery-thumbs" aria-label="Photos de l’annonce">
+          {listing.images.map((photo, index) => <button type="button" key={photo.id} aria-label={`Afficher la photo ${index + 1}`} aria-pressed={index === selectedImage} onClick={() => setSelectedImage(index)}>
+            <img src={mediaUrl(photo.image)} alt="" className={index === selectedImage ? "active" : ""} />
+          </button>)}
+        </div>}
+        <div className="card card-pad" style={{ marginTop: "1.5rem" }}><h2>Description</h2><p className="listing-description">{listing.description}</p></div>
       </div>
-
-      <h3>Description</h3>
-      <p style={{ lineHeight: 1.6, color: "#333" }}>{listing.description}</p>
-   <div style={contactBox}>
-        <h3>Contacter le vendeur</h3>
-        {user ? (
-          <>
-            {listing.seller.email && (
-              <p>✉️ <a href={`mailto:${listing.seller.email}`}>{listing.seller.email}</a></p>
-            )}
-            {listing.seller.phone && <p>📞 {listing.seller.phone}</p>}
-            {!listing.seller.email && !listing.seller.phone && (
-              <p style={{ color: "#777" }}>Ce vendeur n'a pas renseigné de coordonnées.</p>
-            )}
-          </>
-        ) : (
-          <p>
-            🔒 <Link to="/login">Connecte-toi</Link> pour voir les coordonnées du vendeur.
-          </p>
-        )}
+      <div className="card card-pad">
+        <div className="row gap-2" style={{ justifyContent: "space-between", alignItems: "flex-start" }}>
+          <div><h1>{listing.title}</h1>{listing.is_active && <CarnetButton listing={listing} />}<div className="listing-card-price">{Number(listing.price).toLocaleString("fr-TN")} DT</div></div>
+          {listing.is_active && <FavoriteButton key={listing.id} listingId={listing.id} initialFavorited={listing.is_favorited} />}
+        </div>
+        <dl className="info-list">
+          <div><dt>Localisation</dt><dd>{listing.location}</dd></div>
+          <div><dt>Catégorie</dt><dd>{listing.category_name || "Sans catégorie"}</dd></div>
+          <div><dt>Vendeur</dt><dd>{listing.seller.username}</dd></div>
+          <div><dt>Publication</dt><dd>{new Date(listing.created_at).toLocaleDateString("fr-TN")}</dd></div>
+        </dl>
+        {isOwner ? <Link to={`/annonce/${listing.id}/modifier`} className="btn btn-secondary btn-block">Modifier mon annonce</Link>
+          : listing.is_active && <section><h2>Contacter le vendeur</h2>
+            {user ? <form className="stack gap-2" onSubmit={handleContact}>
+              <label htmlFor="contact-message">Votre message</label>
+              <textarea id="contact-message" className="textarea" maxLength={2000} required value={message} onChange={(event) => setMessage(event.target.value)} placeholder="Bonjour, votre annonce m’intéresse…" disabled={sending} />
+              <p className="field-hint">{message.length} / 2 000 caractères</p>
+              {sendError && <p className="field-error" role="alert">{sendError}</p>}
+              <button type="submit" className="btn btn-primary btn-block" disabled={sending || !message.trim()}>{sending ? "Envoi..." : "Envoyer le message"}</button>
+            </form> : <><p>Connectez-vous pour contacter le vendeur.</p><Link to="/login" state={{ from: { pathname: `/annonce/${id}` } }} className="btn btn-primary">Se connecter</Link></>}
+          </section>}
       </div>
     </div>
-  );
+  </div>;
 }
-
-const infoBox = { background: "#f7f7f7", borderRadius: 8, padding: "1rem", margin: "1.5rem 0" };
-const contactBox = { background: "#eef7f0", border: "1px solid #cde8d5", borderRadius: 8, padding: "1rem", margin: "1.5rem 0" };
-export default ListingDetail;
