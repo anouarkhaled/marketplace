@@ -2,6 +2,26 @@
 
 React frontend and Django REST API for listings, favorites and buyer/seller messaging.
 
+## Features
+
+- JWT authentication with automatic token refresh, profiles, avatars, and password reset.
+- Listings with categories, search, price/location filters, pagination, and multiple images.
+- Seller listing management, favorites, and a local three-listing comparison carnet.
+- Buyer/seller conversations with read receipts and periodic message refresh.
+- Staff statistics and Django admin moderation.
+
+## Architecture
+
+- `backend/accounts/`: users, authentication, profiles, password reset, and statistics.
+- `backend/listings/`: categories, listings, image uploads, filtering, and permissions.
+- `backend/favorites/`: user-specific saved listings.
+- `backend/messaging/`: conversations, messages, and participant authorization.
+- `backend/config/`: Django settings, URL routing, health checks, and server entry points.
+- `frontend/src/`: React pages, shared components, contexts, hooks, and API services.
+- `.omm/`: architecture diagrams and descriptions.
+
+The frontend uses React, Vite, React Router, and Axios. The API uses Django REST Framework, SimpleJWT, and django-filter. Docker runs Nginx, Gunicorn, and PostgreSQL; local development defaults to SQLite.
+
 ## Run with Docker
 
 Start Docker Desktop with Linux containers, then run from this directory:
