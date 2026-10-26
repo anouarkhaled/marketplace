@@ -1,0 +1,1 @@
+Opening a thread resets state; polls every eight seconds; merges by message identity, loads older pages, cancels obsolete requests, and sends replies. Source: frontend/src/pages/Messages.jsx

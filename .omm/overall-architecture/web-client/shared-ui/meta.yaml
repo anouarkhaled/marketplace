@@ -1,0 +1,9 @@
+created: 2026-10-26T09:02:05.289Z
+updated: 2026-10-26T09:02:05.290Z
+update_count: 1
+last_field: description
+kind: nested-class
+title: shared-ui
+children: []
+parentPath:
+  - web-client

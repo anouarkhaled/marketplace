@@ -1,0 +1,1 @@
+Respect backend authentication and authorization boundaries. Database and email behavior depend on environment configuration.

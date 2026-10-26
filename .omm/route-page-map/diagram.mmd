@@ -1,0 +1,10 @@
+graph LR
+    public-pages["Public browsing\nfrontend/src/App.jsx"]
+    account-pages["Account forms\nfrontend/src/App.jsx"]
+    route-guard["ProtectedRoute\nfrontend/src/components/ProtectedRoute.jsx"]
+    member-pages["Member pages\nfrontend/src/App.jsx"]
+    staff-page["Staff dashboard\nfrontend/src/pages/Dashboard.jsx"]
+    public-pages -->|"sign in or register"| account-pages
+    account-pages -->|"resolve session"| route-guard
+    route-guard -->|"allow authenticated users"| member-pages
+    route-guard -->|"allow staff users"| staff-page

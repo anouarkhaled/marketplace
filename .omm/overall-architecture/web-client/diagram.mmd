@@ -1,0 +1,9 @@
+graph LR
+    routing["Routing and pages\nfrontend/src/App.jsx"]
+    shared-ui["Shared components\nfrontend/src/components/"]
+    client-state["Contexts and hooks\nfrontend/src/context/"]
+    client-services["Client services\nfrontend/src/services/"]
+    routing -->|"render reusable controls"| shared-ui
+    routing -->|"read and update UI state"| client-state
+    client-state -->|"load authenticated resources"| client-services
+    routing -->|"call feature services"| client-services

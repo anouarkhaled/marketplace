@@ -1,0 +1,31 @@
+created: 2026-10-26T09:02:27.820Z
+updated: 2026-10-26T09:07:13.626Z
+update_count: 9
+last_field: diagram
+git_commit: 69b811f
+git_branch: main
+children:
+  - browser-client
+  - django-dispatch
+  - domain-handler
+  - nginx-proxy
+  - persistence
+prev_diagram: "graph LR
+
+  \    browser-client[\"Browser API client\\nfrontend/src/services/api.js\"]
+
+  \    nginx-proxy[\"HTTP proxy\\nfrontend/nginx.conf\"]
+
+  \    django-dispatch[\"Django dispatch\\nbackend/config/urls.py\"]
+
+  \    domain-handler[\"Domain views\\nbackend/listings/views.py\"]
+
+  \    persistence[\"Database and files\\nbackend/config/settings.py\"]
+
+  \    browser-client -->|\"HTTP API request\"| nginx-proxy
+
+  \    nginx-proxy -->|\"forward request\"| django-dispatch
+
+  \    django-dispatch -->|\"authorized dispatch\"| domain-handler
+
+  \    domain-handler -->|\"query or persist\"| persistence\r\n"

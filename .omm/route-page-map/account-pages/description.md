@@ -1,0 +1,1 @@
+Routes: /login, /register, /mot-de-passe-oublie, /reset-password. Source: frontend/src/App.jsx

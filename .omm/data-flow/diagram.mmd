@@ -1,0 +1,13 @@
+graph LR
+    listing-editor["Listing editor\nfrontend/src/components/ListingForm.jsx"]
+    listing-api["Listing API\nbackend/listings/serializers.py"]
+    relational-records["Relational records\nbackend/listings/models.py"]
+    media-files["Uploaded media\nbackend/config/settings.py"]
+    catalog-reader["Catalog and detail views\nfrontend/src/pages/Listings.jsx"]
+    browser-carnet["Local comparison carnet\nfrontend/src/services/carnet.js"]
+    listing-editor -->|"submit fields and images"| listing-api
+    listing-api -->|"persist validated data"| relational-records
+    listing-api -->|"write uploaded bytes"| media-files
+    relational-records -->|"serialize catalog records"| catalog-reader
+    media-files -->|"serve image URLs"| catalog-reader
+    catalog-reader -->|"toggle comparison selection"| browser-carnet

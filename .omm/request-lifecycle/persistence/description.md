@@ -1,0 +1,1 @@
+ORM persists relational records; ImageFields use filesystem media storage. DRF serializes responses. Source: backend/config/settings.py

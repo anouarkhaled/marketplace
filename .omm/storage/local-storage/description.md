@@ -1,0 +1,1 @@
+Stores access/refresh JWTs and independent carnet IDs. React context holds current user and UI state in memory. Source: frontend/src/context/AuthContext.jsx

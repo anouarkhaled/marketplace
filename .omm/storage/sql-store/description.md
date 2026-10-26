@@ -1,0 +1,1 @@
+One relational database per runtime: Compose PostgreSQL or default local SQLite. Stores users, categories, listings, image references, favorites, conversations, and messages. Source: backend/config/settings.py

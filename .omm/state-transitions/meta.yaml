@@ -1,0 +1,13 @@
+created: 2026-10-26T09:03:58.643Z
+updated: 2026-10-26T09:07:24.938Z
+update_count: 9
+last_field: diagram
+git_commit: 69b811f
+git_branch: main
+prev_diagram: graph LR
+children:
+  - auth-state
+  - carnet-state
+  - message-state
+  - read-state
+  - refresh-state

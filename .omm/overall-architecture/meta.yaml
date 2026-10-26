@@ -1,0 +1,12 @@
+created: 2026-10-26T08:58:08.049Z
+updated: 2026-10-26T09:01:30.303Z
+update_count: 7
+last_field: note
+git_commit: 69b811f
+git_branch: main
+children:
+  - api-server
+  - database
+  - edge-server
+  - file-storage
+  - web-client

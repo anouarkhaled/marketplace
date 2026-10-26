@@ -1,0 +1,1 @@
+Concurrent 401 responses share refreshPromise. Retry uses the new access token. Invalid refresh clears the session; storage comparison prevents restoring a logged-out session. Source: frontend/src/services/api.js

@@ -1,0 +1,1 @@
+Marketplace combines a React browser application with a Django REST API for listings, favorites, profiles, moderation statistics, and buyer/seller messaging. Docker Compose runs Nginx, Gunicorn, and PostgreSQL. This scan describes the current working tree, including uncommitted code.

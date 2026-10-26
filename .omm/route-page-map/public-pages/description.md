@@ -1,0 +1,1 @@
+Routes: /, /annonces, /annonce/:id, /carnet; wildcard renders NotFound. Source: frontend/src/App.jsx

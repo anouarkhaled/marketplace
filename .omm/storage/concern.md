@@ -1,0 +1,1 @@
+Named volumes persist across compose down. Browser carnet and tokens are device-local. Backups are outside the configuration inspected.

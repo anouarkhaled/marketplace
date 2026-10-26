@@ -1,0 +1,1 @@
+Validates listing data and image uploads; views bind the authenticated seller. Source: backend/listings/serializers.py

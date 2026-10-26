@@ -1,0 +1,1 @@
+media_data is writable by Django and read-only in Nginx; stores avatars and listing image bytes. Source: compose.yaml

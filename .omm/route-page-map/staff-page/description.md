@@ -1,0 +1,1 @@
+Route /dashboard requires staff status; backend independently enforces staff permission on statistics. Source: frontend/src/pages/Dashboard.jsx

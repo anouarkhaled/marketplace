@@ -1,0 +1,1 @@
+static_data contains collected Django static files; frontend build assets live in the Nginx image. Source: compose.yaml

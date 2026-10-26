@@ -1,0 +1,1 @@
+Preserves request URI and forwards API/admin/health traffic to backend:8000. Source: frontend/nginx.conf

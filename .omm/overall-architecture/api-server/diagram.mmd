@@ -1,0 +1,12 @@
+graph LR
+    configuration["Runtime configuration\nbackend/config/"]
+    accounts["Accounts\nbackend/accounts/"]
+    listings["Listings\nbackend/listings/"]
+    favorites["Favorites\nbackend/favorites/"]
+    messaging["Messaging\nbackend/messaging/"]
+    configuration -->|"route account endpoints"| accounts
+    configuration -->|"route listing endpoints"| listings
+    configuration -->|"route favorite endpoints"| favorites
+    configuration -->|"route messaging endpoints"| messaging
+    favorites -->|"reference active listings"| listings
+    messaging -->|"reference listing and seller"| listings

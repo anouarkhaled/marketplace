@@ -1,0 +1,1 @@
+Scan of the working tree on 2026-10-26. Covers implemented source and Compose configuration; runtime behavior was not exercised.

@@ -1,0 +1,1 @@
+Browser tokens are accessible to JavaScript. Refresh tokens rotate without blacklisting. Message polling introduces up to eight seconds of update delay.

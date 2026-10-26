@@ -1,0 +1,1 @@
+Initial loading resolves to anonymous or authenticated after profile retrieval. Login stores tokens and loads profile; logout clears tokens and user; version checks reject stale profile completion. Source: frontend/src/context/AuthContext.jsx

@@ -1,0 +1,1 @@
+Routes: /creer-annonce, /annonce/:id/modifier, /mes-annonces, /favoris, /profil, /messages, /messages/:conversationId. Source: frontend/src/App.jsx

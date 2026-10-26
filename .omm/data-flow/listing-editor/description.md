@@ -1,0 +1,1 @@
+Collects listing fields and images for seller create/edit pages. Source: frontend/src/components/ListingForm.jsx

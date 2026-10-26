@@ -1,0 +1,1 @@
+Stores a maximum of three selected listing IDs in browser localStorage; separate from server favorites. Source: frontend/src/services/carnet.js

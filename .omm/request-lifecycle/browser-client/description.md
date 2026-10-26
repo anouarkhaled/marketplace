@@ -1,0 +1,1 @@
+Sends requests with bearer access tokens; public auth endpoints omit bearer tokens. A 401 can trigger a shared refresh request and one retry. Source: frontend/src/services/api.js

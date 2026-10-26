@@ -1,0 +1,1 @@
+Architecture perspective: state-transitions. Traced from the current source files listed in the diagram.

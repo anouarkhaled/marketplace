@@ -1,0 +1,1 @@
+Middleware and URL routing dispatch to domain endpoints; DRF applies authentication, permissions, throttling, and pagination. Source: backend/config/urls.py

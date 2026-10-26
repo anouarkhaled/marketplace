@@ -1,0 +1,41 @@
+created: 2026-10-26T09:03:11.335Z
+updated: 2026-10-26T09:07:16.836Z
+update_count: 9
+last_field: diagram
+git_commit: 69b811f
+git_branch: main
+children:
+  - browser-carnet
+  - catalog-reader
+  - listing-api
+  - listing-editor
+  - media-files
+  - relational-records
+prev_diagram: "graph LR
+
+  \    listing-editor[\"Listing
+  editor\\nfrontend/src/components/ListingForm.jsx\"]
+
+  \    listing-api[\"Listing API\\nbackend/listings/serializers.py\"]
+
+  \    relational-records[\"Relational records\\nbackend/listings/models.py\"]
+
+  \    media-files[\"Uploaded media\\nbackend/config/settings.py\"]
+
+  \    catalog-reader[\"Catalog and detail
+  views\\nfrontend/src/pages/Listings.jsx\"]
+
+  \    browser-carnet[\"Local comparison
+  carnet\\nfrontend/src/services/carnet.js\"]
+
+  \    listing-editor -->|\"submit fields and images\"| listing-api
+
+  \    listing-api -->|\"persist validated data\"| relational-records
+
+  \    listing-api -->|\"write uploaded bytes\"| media-files
+
+  \    relational-records -->|\"serialize catalog records\"| catalog-reader
+
+  \    media-files -->|\"serve image URLs\"| catalog-reader
+
+  \    catalog-reader -->|\"toggle comparison selection\"| browser-carnet\r\n"

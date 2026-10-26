@@ -1,0 +1,7 @@
+graph LR
+    sql-store["SQL database\nbackend/config/settings.py"]
+    media-volume["Media volume\ncompose.yaml"]
+    static-volume["Static assets volume\ncompose.yaml"]
+    local-storage["Browser localStorage\nfrontend/src/context/AuthContext.jsx"]
+    sql-store -->|"store file references"| media-volume
+    local-storage -->|"authenticated API accesses relational data"| sql-store

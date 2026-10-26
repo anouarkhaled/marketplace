@@ -1,0 +1,1 @@
+Initialize IDs from storage, toggle selection up to three, clear all, and persist after state changes. Source: frontend/src/context/CarnetContext.jsx

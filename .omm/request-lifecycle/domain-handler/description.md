@@ -1,0 +1,1 @@
+Views validate through serializers, enforce ownership/participant rules, and query or mutate ORM models. Source: backend/listings/views.py

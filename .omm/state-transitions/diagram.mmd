@@ -1,0 +1,9 @@
+graph LR
+    auth-state["Authentication state\nfrontend/src/context/AuthContext.jsx"]
+    refresh-state["Token refresh\nfrontend/src/services/api.js"]
+    carnet-state["Carnet selection\nfrontend/src/context/CarnetContext.jsx"]
+    message-state["Message thread state\nfrontend/src/pages/Messages.jsx"]
+    read-state["Message read state\nbackend/messaging/views.py"]
+    auth-state -->|"request encounters 401"| refresh-state
+    refresh-state -->|"refresh failure expires session"| auth-state
+    message-state -->|"GET thread page marks incoming messages read"| read-state

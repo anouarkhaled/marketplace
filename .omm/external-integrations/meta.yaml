@@ -1,0 +1,24 @@
+created: 2026-10-26T09:04:00.920Z
+updated: 2026-10-26T09:07:49.453Z
+update_count: 8
+last_field: note
+git_commit: 69b811f
+git_branch: main
+prev_diagram: "graph LR
+
+  \    reset-handler[\"Password reset handler\\nbackend/accounts/views.py\"]
+
+  \    email-backend[\"Email backend\\nbackend/config/settings.py\"]
+
+  \    reset-page[\"Reset password
+  page\\nfrontend/src/pages/ResetPassword.jsx\"]
+
+  \    reset-handler -->|\"send reset link\"| email-backend
+
+  \    email-backend -->|\"user opens emailed URL\"| reset-page
+
+  \    reset-page -->|\"submit token and new password\"| reset-handler\r\n"
+children:
+  - email-backend
+  - reset-handler
+  - reset-page

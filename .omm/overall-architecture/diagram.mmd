@@ -1,0 +1,11 @@
+graph LR
+    web-client["React application\nfrontend/src/"]
+    api-server["Django API\nbackend/"]
+    edge-server["Nginx\nfrontend/nginx.conf"]
+    database["Relational database\nbackend/config/settings.py"]
+    file-storage["Media and static files\ncompose.yaml"]
+    web-client -->|"HTTP requests"| edge-server
+    edge-server -->|"proxy API and admin"| api-server
+    api-server -->|"ORM read and write"| database
+    api-server -->|"upload and collect assets"| file-storage
+    edge-server -->|"serve files"| file-storage

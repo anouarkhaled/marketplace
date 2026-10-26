@@ -1,0 +1,1 @@
+Uses auth loading/user state to guard authenticated pages; staffOnly gates the dashboard. Source: frontend/src/components/ProtectedRoute.jsx

@@ -1,0 +1,1 @@
+Listing images and avatars are stored in MEDIA_ROOT and exposed through MEDIA_URL. Source: backend/config/settings.py

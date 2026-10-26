@@ -1,0 +1,9 @@
+created: 2026-10-26T09:02:35.184Z
+updated: 2026-10-26T09:02:35.185Z
+update_count: 1
+last_field: description
+kind: nested-class
+title: messaging
+children: []
+parentPath:
+  - api-server

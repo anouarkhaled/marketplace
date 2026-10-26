@@ -1,0 +1,1 @@
+User owns listings; categories classify listings; listing images reference their parent listing. Favorites and conversations reference users and listings. Source: backend/listings/models.py

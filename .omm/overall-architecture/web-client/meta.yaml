@@ -1,0 +1,12 @@
+created: 2026-10-26T09:01:33.251Z
+updated: 2026-10-26T09:01:58.297Z
+update_count: 3
+last_field: description
+kind: nested-class
+title: web-client
+children:
+  - client-services
+  - client-state
+  - routing
+  - shared-ui
+parentPath: []

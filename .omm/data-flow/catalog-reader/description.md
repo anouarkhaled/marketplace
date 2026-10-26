@@ -1,0 +1,1 @@
+Fetches paginated search/filter results and displays details with media URLs. Source: frontend/src/pages/Listings.jsx

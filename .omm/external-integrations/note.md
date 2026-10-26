@@ -1,0 +1,1 @@
+Generated using omm-scan. Paths identify source evidence. External/runtime behavior is described from configuration, not verified by deployment.
